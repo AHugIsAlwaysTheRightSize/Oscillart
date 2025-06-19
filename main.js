@@ -5,7 +5,7 @@ const audioCtx = new AudioContext();
 const gainNode = audioCtx.Ctx.createGain();
 
 //create Oscillator node
-const oscillator audioCtx.createOscillator();
+const oscillator = audioCtx.createOscillator();
 oscillator.connect(gainNode);
 gainNode.connect(audioCtx.destination)
 oscillator.type = "sine";
