@@ -1,13 +1,18 @@
 const input = document.getElementById('input');
+const color_picker = document.getElementById('color')
+const vol_slider = document.getElementById('vol-slider');
+
+
+
 
 //create web audio api elements
 const audioCtx = new AudioContext();
-const gainNode = audioCtx.Ctx.createGain();
+const gainNode = audioCtx.createGain();
 
 //create Oscillator node
 const oscillator = audioCtx.createOscillator();
 oscillator.connect(gainNode);
-gainNode.connect(audioCtx.destination)
+gainNode.connect(audioCtx.destination);
 oscillator.type = "sine";
 
 //define canvas variables
@@ -15,7 +20,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var width = ctx.canvas.width;
 var height = ctx.canvas.height;
-var amplitude = 40;
+
 var interval = null;
 var reset = false;
 
@@ -25,7 +30,7 @@ var length = 0;
 oscillator.start();
 gainNode.gain.value = 0;
 
-notenames =new Map();
+notenames = new Map();
 mapName.set("C", 261.6);
 mapName.set("D", 293.7);
 mapName.set("E", 329.6);
@@ -37,25 +42,41 @@ mapName.set("B", 493.9);
 
 
 function frequency(pitch) {
-//set volume to 100%
-gainNode.gain.setValueAtTime(100, audioCtx.currentTime);
+    freq = pitch / 10000;
 
-//set frequency pitch to other paramater Oscillator
-oscillator.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+    //set volume to 100%
+    gainNode.gain.setValueAtTime(vol_slider.value, audioCtx.currentTime);
 
-//set volume back down to 0% after one second
-gainNode.gain.setValueAtTime(0, audioCtx.currentTime + (timpernote/1000) - 0.1);
-}
+    setting = setInterval(() => {gainNode.gain.value = vol_slider.value}, 1);
+    //set frequency pitch to other paramater Oscillator
+    oscillator.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+
+    setTimeout(() => { clearInterval(setting); gainNode.gain.value = 0; }, ((timerpernote)-10));
+
+
+    }
+
+
+
 
 function handle() {
+    audioCtx.resume();
+    gainNode.gain.value = 0;
+
+    //drawWave(frequency);
+
     reset = true;
+    
     var usernotes = String(input.value);
     var noteslist = []
-    for ( i = 0; i < usernotes.length; i++) {
+
+    length = usernotes.length;
+    timepernote = (6000 / length)
+
+    for (i = 0; i < usernotes.length; i++) {
         noteslist.push(notenames.get(usernotes.charAt(i)))
     }
-    length = usernotes.length;
-    timepernote = (6000/length)
+    
 
     let j = 0;
         repeat = setInterval(() => {
@@ -63,23 +84,19 @@ function handle() {
                 frequency(parseInt(noteslist[j]));
                 drawWave();
             j++
-            }
-            else {
+            } else {
                 clearInterval(repeat)
             }
 
         }, timepernote)
 
-    audioCtx.resume();
-    gainNode.gain.value = 0;
-    drawWave(frequency);
 }
 
 var counter = 0;
-
 function drawWave() {
-    clearInterval(interval);
-    if(reset){
+    clearInterval(interval); 
+    
+    if (reset) {
         ctx.clearRect(0, 0, width, height);
         x = 0;
         y = height/2;
@@ -88,12 +105,14 @@ function drawWave() {
     }
     counter = 0;
     interval = setInterval(line, 20);
-    
+    reset = false;
 }
 
+
+
 function line() {
-    freq = pitch / 10000;
-    y = height/2 + amplitude * Math.sin(x * 2 * Math.PI * freq * (.05 * length));
+    y = height/2 + ((vol_slider.value/100)*40 * Math.sin(x * 2 * Math.PI * freq * (.05*length))); //make sure is actually changed to this
+    ctx.stokeStyle = color_picker.value;
     ctx.lineTo(x, y);
     ctx.stroke();
     x = x + 1;
@@ -102,5 +121,3 @@ function line() {
         clearInterval(interval);
     }
 }
-
-
