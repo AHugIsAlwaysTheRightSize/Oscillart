@@ -41,6 +41,13 @@ notenames.set("G", 392.0);
 notenames.set("A", 440.0);
 notenames.set("B", 493.9);
 
+//maybe
+//let freq;
+//let setting;
+//let repeat;
+//let x=0;
+//let y=0;
+
 
 
 function frequency(pitch) {
@@ -115,7 +122,7 @@ function drawWave() {
 
 function line() {
     y = height/2 + ((vol_slider.value/100)*40 * Math.sin(x * 2 * Math.PI * freq * (.05*length))); 
-    ctx.stokeStyle = color_picker.value;
+    ctx.strokeStyle = color_picker.value;
     ctx.lineTo(x, y);
     ctx.stroke();
     x = x + 1;
